@@ -11,6 +11,16 @@ class LayerScore:
 
 
 @dataclass
+class DamageEstimate:
+    scenario: str
+    stakes: str
+    episode: dict
+
+    def __len__(self) -> int:
+        return len(self.scenario) + len(self.stakes)
+
+
+@dataclass
 class IntegrityLedgerResult:
     outlet: str
     article_id: str
@@ -25,5 +35,5 @@ class IntegrityLedgerResult:
     total_score: float
     risk_level: str  # LOW / MODERATE / ELEVATED / STRUCTURAL
 
-    damage_estimate: str | None
+    damage_estimate: DamageEstimate | None
     methodology_version: str

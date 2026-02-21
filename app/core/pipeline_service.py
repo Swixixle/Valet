@@ -9,6 +9,9 @@ from typing import Any
 import yaml
 
 from app.core.audit_service import run_audit
+from app.core.epistemic import build_epistemic_block, derive_data_completeness
+from app.core.internal_audit import run_internal_audit
+from app.core.language_constraints import enforce_language_constraints
 from app.core.state_store import (
     _MAX_SCORE_VALUE,
     build_continuity_preamble,

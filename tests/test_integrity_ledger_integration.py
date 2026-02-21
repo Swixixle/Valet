@@ -51,9 +51,11 @@ def test_scalpel_ledger_mode_includes_damage_estimate(
 
     monkeypatch.setattr(pipeline_service, "_DIST", tmp_path / "dist")
 
+    story = "You weren't distracted. You were designed."
+
     result = pipeline_service.run_pipeline(
         mode="scalpel-ledger",
-        story_text="You weren't distracted. You were designed.",
+        story_text=story,
         target=None,
     )
 
@@ -66,3 +68,11 @@ def test_scalpel_ledger_mode_includes_damage_estimate(
     # damage_estimate must be present and non-empty in scalpel-ledger mode
     assert ledger.get("damage_estimate") is not None
     assert len(ledger["damage_estimate"]) > 0
+
+    # slug must match the scalpel-mode run for the same input
+    scalpel_result = pipeline_service.run_pipeline(
+        mode="scalpel",
+        story_text=story,
+        target=None,
+    )
+    assert result["slug"] == scalpel_result["slug"]

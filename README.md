@@ -12,6 +12,7 @@ Valet Studio is a deterministic content pipeline. You feed it a text file — a 
 - **`audit.yaml`** — structured semantic audit of the input
 - **`receipt.png` / `receipt.json`** — a visual and machine-readable receipt of the transformation
 - **`video.mp4`** — a vertical 9:16 video formatted for TikTok and short-form platforms
+- **`integrity_ledger.json`** — integrity scores and risk-level assessment
 
 The pipeline runs in two modes: `scalpel` (surgical, high-fidelity) and `scalpel-ledger` (adds a But-If damage estimate). Additional modes are configurable via the CLI.
 
@@ -66,14 +67,32 @@ python tools/run_pipeline.py --mode scalpel --file fixtures/stories/01-designed.
 
 **Options:**
 
-| Flag | Description |
-|------|-------------|
-| `--mode` | Pipeline mode (e.g. `scalpel`) |
-| `--file` | Path to input `.txt` story file |
+| Flag | Short | Description |
+|------|-------|-------------|
+| `--mode` | `-m` | Pipeline mode (`scalpel` default; `scalpel-ledger` adds But-If damage estimate) |
+| `--file` | `-f` | Path to input `.txt` story file (mutually exclusive with `--text`) |
+| `--text` | `-t` | Inline story text string (mutually exclusive with `--file`) |
+| `--target` | | Character target for voice governance (default: `valet`) |
+
+### API
+
+Start the server with `uvicorn app.api.server:app --reload`, then `POST /pipeline`:
+
+```json
+{ "mode": "scalpel", "story_text": "Your story here...", "target": "valet" }
+```
+
+Or ingest from a video URL:
+
+```json
+{ "mode": "scalpel", "url": "https://youtube.com/watch?v=...", "target": "valet" }
+```
+
+`story_text` and `url` are mutually exclusive — provide one. `target` is optional.
 
 ### Output
 
-Running the pipeline produces four files in the output directory:
+Running the pipeline writes all files to `dist/<slug>/` and produces:
 
 | File | Description |
 |------|-------------|
@@ -81,6 +100,37 @@ Running the pipeline produces four files in the output directory:
 | `receipt.png` | Visual receipt image |
 | `receipt.json` | Machine-readable receipt |
 | `video.mp4` | 9:16 vertical video |
+| `integrity_ledger.json` | Full integrity ledger with risk scores |
+
+`voice_governance.txt` is written when the voice-library is wired. `but_if_video.mp4` is written in `scalpel-ledger` mode only. See the [Operator Runbook](#operator-runbook) for the full output contract.
+
+---
+
+## Operator Runbook
+
+### Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `LLM_PROVIDER` | Yes | LLM backend to use: `openai` or `anthropic` |
+| `OPENAI_API_KEY` | If `LLM_PROVIDER=openai` | OpenAI API key |
+| `ANTHROPIC_API_KEY` | If `LLM_PROVIDER=anthropic` | Anthropic API key |
+| `WHISPER_MODEL` | No | Whisper model size for video transcription (default: `base`) |
+
+### Output Contract
+
+All pipeline artifacts are written to `dist/<slug>/`:
+
+```
+dist/<slug>/
+  audit.yaml              ← structured semantic audit
+  receipt.json            ← machine-readable receipt
+  receipt.png             ← visual receipt image
+  video.mp4               ← 9:16 vertical video
+  integrity_ledger.json   ← integrity scores and risk level
+  voice_governance.txt    ← voice payload (if voice-library is wired)
+  but_if_video.mp4        ← alternate video (scalpel-ledger mode only)
+```
 
 ---
 

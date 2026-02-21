@@ -10,8 +10,9 @@ router = APIRouter()
 
 class PipelineRequest(BaseModel):
     mode: str
-    story_text: str
+    story_text: str | None = None
     target: str | None = None
+    url: str | None = None
 
     @field_validator("mode")
     @classmethod
@@ -21,18 +22,30 @@ class PipelineRequest(BaseModel):
             raise ValueError("mode must not be empty")
         return v
 
-    @field_validator("story_text")
-    @classmethod
-    def _story_not_empty(cls, v: str) -> str:
-        v = v.strip()
-        if not v:
-            raise ValueError("story_text must not be empty")
-        return v
-
 
 @router.post("/pipeline")
 def pipeline(req: PipelineRequest):
     try:
-        return run_pipeline(mode=req.mode, story_text=req.story_text, target=req.target)
+        story_text = req.story_text
+        word_count = 0
+        duration_seconds: float | None = None
+
+        if req.url:
+            from app.ingest.ingest import ingest
+
+            ingested = ingest(req.url)
+            story_text = ingested.text
+            word_count = ingested.word_count
+            duration_seconds = ingested.duration_seconds
+        elif not story_text or not story_text.strip():
+            raise ValueError("Either 'url' or 'story_text' must be provided and non-empty.")
+
+        return run_pipeline(
+            mode=req.mode,
+            story_text=story_text or "",
+            target=req.target,
+            word_count=word_count,
+            duration_seconds=duration_seconds,
+        )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

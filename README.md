@@ -1,60 +1,120 @@
-# Valet Studio (v0)
+# Valet Studio
 
-Deterministic text → audit.yaml + receipt.png/json + TikTok-ready 9:16 video.mp4.
+> Deterministic text → structured audit + TikTok-ready video.  
+> Input a story. Get back `audit.yaml`, `receipt.png`, `receipt.json`, and a 9:16 `video.mp4`.
 
-## Install
-```shell
+---
+
+## What It Does
+
+Valet Studio is a deterministic content pipeline. You feed it a text file — a financial story, a script, a structured narrative — and it outputs:
+
+- **`audit.yaml`** — structured semantic audit of the input
+- **`receipt.png` / `receipt.json`** — a visual and machine-readable receipt of the transformation
+- **`video.mp4`** — a vertical 9:16 video formatted for TikTok and short-form platforms
+
+The pipeline runs in two modes: `scalpel` (surgical, high-fidelity) and `scalpel-ledger` (adds a But-If damage estimate). Additional modes are configurable via the CLI.
+
+Voice and tone are governed externally by the <a href="https://github.com/Swixixle/voice-library">`voice-library`</a> repo. If there is ever a conflict between application output and the voice-library, **the voice-library wins.**
+
+---
+
+## Project Structure
+
+```
+Valet/
+  app/
+    api/             ← FastAPI server (uvicorn entry point)
+  fixtures/
+    stories/         ← sample input .txt files for testing
+  tests/             ← test suite
+  tools/
+    run_pipeline.py  ← CLI entry point
+  .github/workflows/ ← CI/CD
+  pyproject.toml     ← dependencies and project metadata
+```
+
+---
+
+## Installation
+
+Requires Python 3.10+.
+
+```bash
+git clone https://github.com/Swixixle/Valet.git
+cd Valet
 pip install -e ".[dev]"
 ```
 
-## Run API
-```shell
+---
+
+## Usage
+
+### Run the API server
+
+```bash
 uvicorn app.api.server:app --reload
 ```
 
-## Run CLI
-```shell
+The API will be available at `http://localhost:8000`.
+
+### Run the CLI pipeline
+
+```bash
 python tools/run_pipeline.py --mode scalpel --file fixtures/stories/01-designed.txt
 ```
 
-## Voice Governance (voice-library)
+**Options:**
 
-Valet supports a **voice governance layer** that injects character-level conditioning text (bible, anchors, calibration, drift) into every pipeline run for audit traceability.
-
-### Setup
-
-Clone [voice-library](https://github.com/Swixixle/voice-library) adjacent to this repo:
-
-```shell
-git clone https://github.com/Swixixle/voice-library ../voice-library
-```
-
-Or point to an existing checkout via the environment variable:
-
-```shell
-export VOICE_LIBRARY_PATH=/path/to/voice-library
-```
-
-### Usage
-
-Pass `--target` (CLI) or `target` (API) to select a character:
-
-```shell
-python tools/run_pipeline.py --mode scalpel --target valet --file fixtures/stories/01-designed.txt
-python tools/run_pipeline.py --mode scalpel --target perimeter_walker --file fixtures/stories/01-designed.txt
-```
-
-If `--target` is omitted, the character defaults to `"valet"`.
+| Flag | Description |
+|------|-------------|
+| `--mode` | Pipeline mode (e.g. `scalpel`) |
+| `--file` | Path to input `.txt` story file |
 
 ### Output
 
-Each run writes `dist/<slug>/voice_governance.txt` containing the assembled governance payload, and records provenance in `audit.yaml` under the `voice` key:
+Running the pipeline produces four files in the output directory:
 
-```yaml
-voice:
-  character: valet
-  source: voice-library
-  payload_file: voice_governance.txt
+| File | Description |
+|------|-------------|
+| `audit.yaml` | Structured semantic audit |
+| `receipt.png` | Visual receipt image |
+| `receipt.json` | Machine-readable receipt |
+| `video.mp4` | 9:16 vertical video |
+
+---
+
+## Development
+
+Run tests:
+
+```bash
+pytest tests/
 ```
 
-If the voice-library path is not found, the pipeline continues without governance (no `voice_governance.txt` is written).
+Add a new fixture story to `fixtures/stories/` and run the pipeline against it to validate changes.
+
+---
+
+## Voice & Tone
+
+All character voice, tone, and personality governance lives in the <a href="https://github.com/Swixixle/voice-library">`voice-library`</a> repo. That repo is the authoritative source — application output always defers to it.
+
+Valet currently uses two characters:
+
+- **The Valet** — trickster-sage in scrubs. Calm, precise, faintly disappointed.
+- **The Perimeter Walker** — sensory metaphors, morally intact, controlled danger.
+
+---
+
+## Roadmap
+
+- [ ] Phase 1: LLM integration with voice-library conditioning
+- [ ] Additional pipeline modes beyond `scalpel`
+- [ ] Extended output formats
+
+---
+
+## License
+
+Private. All rights reserved.

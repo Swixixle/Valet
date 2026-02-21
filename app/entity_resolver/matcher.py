@@ -44,7 +44,9 @@ def match_entities(
         if not resolved and score > 0.0:
             logger.info(
                 "Ambiguous entity match logged for review: %r vs %r (%.4f)",
-                query, candidate, score,
+                query,
+                candidate,
+                score,
             )
 
         results.append(

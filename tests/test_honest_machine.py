@@ -295,9 +295,7 @@ def test_pipeline_doctrine_abort_no_video_artifact(
     assert video_files == [], "video.mp4 must not be written after doctrine abort"
 
 
-def test_pipeline_includes_epistemic_block(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_pipeline_includes_epistemic_block(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from app.core import pipeline_service
 
     monkeypatch.setattr(pipeline_service, "_DIST", tmp_path / "dist")
@@ -320,9 +318,7 @@ def test_pipeline_includes_epistemic_block(
     assert "uncertainty_disclosure" in epistemic
 
 
-def test_pipeline_includes_internal_audit(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_pipeline_includes_internal_audit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from app.core import pipeline_service
 
     monkeypatch.setattr(pipeline_service, "_DIST", tmp_path / "dist")

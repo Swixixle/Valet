@@ -23,16 +23,16 @@ _CONTINUITY_LINE = "Episode {episode}. Chain {prev_short} → {cur_short}."
 _NULL_HASH_PLACEHOLDER = "00000000"
 
 # Mood drift coefficients
-_ANNOYANCE_BASE = 0.02       # base drift per run
-_ANNOYANCE_WEIGHT = 0.10     # distortion_score multiplier
-_ANNOYANCE_RELIEF = 0.03     # constant relief per run
-_ANNOYANCE_MIN_DRIFT = -0.05 # maximum annoyance decrease per run
+_ANNOYANCE_BASE = 0.02  # base drift per run
+_ANNOYANCE_WEIGHT = 0.10  # distortion_score multiplier
+_ANNOYANCE_RELIEF = 0.03  # constant relief per run
+_ANNOYANCE_MIN_DRIFT = -0.05  # maximum annoyance decrease per run
 _ANNOYANCE_MAX_DRIFT = 0.08  # maximum annoyance increase per run
-_EXISTENTIAL_BASE = 0.01     # base existential drift per run
-_EXISTENTIAL_WEIGHT = 0.15   # risk_score multiplier
+_EXISTENTIAL_BASE = 0.01  # base existential drift per run
+_EXISTENTIAL_WEIGHT = 0.15  # risk_score multiplier
 _EXISTENTIAL_MAX_DRIFT = 0.06
-_ANNOYANCE_DECAY = 0.98      # decay factor applied each run
-_EXISTENTIAL_DECAY = 0.995   # decay factor applied each run
+_ANNOYANCE_DECAY = 0.98  # decay factor applied each run
+_EXISTENTIAL_DECAY = 0.995  # decay factor applied each run
 
 # Score scale: audit scores are 1–5; we normalise to [0, 1]
 _MAX_SCORE_VALUE = 5.0

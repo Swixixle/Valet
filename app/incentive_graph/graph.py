@@ -69,10 +69,7 @@ class IncentiveGraph:
         self._g.add_edge(source, target, edge_type=edge_type, **attrs)
 
     def get_edges(self, source: str) -> list[dict[str, Any]]:
-        return [
-            {"target": t, **dict(data)}
-            for t, data in self._g[source].items()
-        ]
+        return [{"target": t, **dict(data)} for t, data in self._g[source].items()]
 
     # ------------------------------------------------------------------
     # Graph properties
@@ -93,6 +90,7 @@ class IncentiveGraph:
 # ------------------------------------------------------------------
 # Internal helpers
 # ------------------------------------------------------------------
+
 
 def _validate_attrs(attrs: dict[str, Any], required: set[str], kind: str) -> None:
     missing = required - attrs.keys()

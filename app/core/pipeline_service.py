@@ -40,7 +40,9 @@ def run_pipeline(mode: str, story_text: str, target: str | None = None) -> dict[
     except FileNotFoundError:
         pass
 
-    audit = run_audit(mode=mode, story_text=story_text, target=target)
+    # "scalpel-ledger" is a pipeline mode; the underlying audit always runs as "scalpel"
+    audit_mode = "scalpel" if mode == "scalpel-ledger" else mode
+    audit = run_audit(mode=audit_mode, story_text=story_text, target=target)
     audit["voice"] = voice_meta
 
     slug = audit["slug"]

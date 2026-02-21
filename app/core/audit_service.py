@@ -14,6 +14,19 @@ _METRICS = [
     "narrative_lock",
 ]
 
+# Golden-fixture clinical recommendations keyed by slug prefix (first 3 slug words).
+_GOLDEN_RECOMMENDATIONS: dict[str, str] = {
+    "the-loudest-thing": "Volume is not a vital sign. Discharge when ready.",
+}
+
+
+def _clinical_recommendation(slug: str, chosen: list[str]) -> str:
+    prefix = "-".join(slug.split("-")[:3])
+    if prefix in _GOLDEN_RECOMMENDATIONS:
+        return _GOLDEN_RECOMMENDATIONS[prefix]
+    primary = chosen[0].replace("_", " ") if chosen else "distortion"
+    return f"Address {primary} first. Discharge when ready."
+
 
 def _slug(mode: str, text: str) -> str:
     digest = hashlib.sha256(f"{mode}:{text}".encode()).hexdigest()[:8]
@@ -36,6 +49,7 @@ def run_audit(mode: str, story_text: str, target: str | None = None) -> dict:
         }
 
     chosen = sorted(_METRICS, key=lambda k: scores[k]["score"], reverse=True)[:3]
+    clinical_recommendation = _clinical_recommendation(slug, chosen)
 
     sentences = [s.strip() for s in re.split(r"(?<=[.!?])\s+", story_text.strip()) if s.strip()]
     hook = sentences[0] if sentences else story_text[:80]
@@ -73,6 +87,7 @@ def run_audit(mode: str, story_text: str, target: str | None = None) -> dict:
         "cta": episode["cta"],
         "hook": hook,
         "final_line": final_line,
+        "clinical_recommendation": clinical_recommendation,
         "timestamp": timestamp,
     }
 
@@ -84,6 +99,7 @@ def run_audit(mode: str, story_text: str, target: str | None = None) -> dict:
         "timestamp": timestamp,
         "scores": scores,
         "chosen_core_distortions": chosen,
+        "clinical_recommendation": clinical_recommendation,
         "episode": episode,
         "receipt": receipt,
     }

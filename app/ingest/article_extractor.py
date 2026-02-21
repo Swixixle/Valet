@@ -74,6 +74,5 @@ def extract_article(url: str) -> IngestResult:
         pass
 
     raise RuntimeError(
-        "No article extraction library available. "
-        "Install trafilatura>=1.6 or newspaper3k."
+        "No article extraction library available. " "Install trafilatura>=1.6 or newspaper3k."
     )

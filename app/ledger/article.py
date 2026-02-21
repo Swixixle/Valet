@@ -10,7 +10,7 @@ def _llm_analyze(prompt_topic: str, context: str) -> LayerScore:
 
         system = (
             "You are a forensic media integrity analyst. Respond with valid JSON only. "
-            "Schema: {\"score\": <float 0.0-1.0>, \"confidence\": <float 0.0-1.0>, \"notes\": <string>}"
+            'Schema: {"score": <float 0.0-1.0>, "confidence": <float 0.0-1.0>, "notes": <string>}'
         )
         user = f"Analyze the following for {prompt_topic}:\n\n{context}"
         import json

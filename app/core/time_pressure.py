@@ -49,9 +49,7 @@ def _level_from_duration(duration_seconds: float) -> str:
     return "CRITICAL"
 
 
-def compute_time_pressure(
-    word_count: int, duration_seconds: float | None = None
-) -> TimePressure:
+def compute_time_pressure(word_count: int, duration_seconds: float | None = None) -> TimePressure:
     """
     Calculate how stressed The Valet is based on content length.
 
@@ -67,7 +65,7 @@ def compute_time_pressure(
     wc_level = _level_from_word_count(word_count)
     if duration_seconds is not None:
         dur_level = _level_from_duration(duration_seconds)
-        level = max(wc_level, dur_level, key=lambda l: _LEVEL_ORDER[l])
+        level = max(wc_level, dur_level, key=lambda lv: _LEVEL_ORDER[lv])
     else:
         level = wc_level
 

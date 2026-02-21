@@ -61,12 +61,12 @@ def get_llm_client() -> LLMClient:
     if provider == "openai":
         api_key = os.environ.get("OPENAI_API_KEY", "")
         if not api_key:
-            raise EnvironmentError("OPENAI_API_KEY is not set.")
+            raise OSError("OPENAI_API_KEY is not set.")
         return _OpenAIClient(api_key=api_key)
     if provider == "anthropic":
         api_key = os.environ.get("ANTHROPIC_API_KEY", "")
         if not api_key:
-            raise EnvironmentError("ANTHROPIC_API_KEY is not set.")
+            raise OSError("ANTHROPIC_API_KEY is not set.")
         return _AnthropicClient(api_key=api_key)
     raise NotImplementedError(
         "No LLM provider configured. Set LLM_PROVIDER to 'openai' or 'anthropic'."

@@ -20,11 +20,9 @@ def _build_but_if_prompt(
     ledger: IntegrityLedgerResult,
     governance_payload: str | None,
 ) -> str:
-    governance_section = (
-        f"\n\n---\n{governance_payload}\n---" if governance_payload else ""
-    )
+    governance_section = f"\n\n---\n{governance_payload}\n---" if governance_payload else ""
     distortions = [
-        f"- {layer}: score={getattr(ledger, layer.replace('-', '_'), None).score if getattr(ledger, layer.replace('-', '_'), None) else 'N/A'}"
+        f"- {layer}: score={getattr(ledger, layer.replace('-', '_'), None).score if getattr(ledger, layer.replace('-', '_'), None) else 'N/A'}"  # noqa: E501
         for layer in ["ownership", "revenue", "editorial", "article", "regulatory", "pattern"]
     ]
     distortions_text = "\n".join(distortions)
@@ -84,7 +82,7 @@ def _stub_damage_estimate(ledger: IntegrityLedgerResult) -> DamageEstimate:
         f"Estimated exposure range: {exposure}. "
         f"Projected behavior impact probability-adjusted range: {behavior_shift} shift."
     )
-    stakes = f"At this risk level ({risk}), sustained distortion could shift public understanding measurably."
+    stakes = f"At this risk level ({risk}), sustained distortion could shift public understanding measurably."  # noqa: E501
     episode: dict = {
         "hook": "But if it were true — follow the line.",
         "final_line": "The perimeter holds. For now.",

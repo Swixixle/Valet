@@ -9,7 +9,11 @@ from typing import Any
 import yaml
 
 from app.core.audit_service import run_audit
+from app.core.epistemic import build_epistemic_block, derive_data_completeness
+from app.core.internal_audit import run_internal_audit
+from app.core.language_constraints import enforce_language_constraints
 from app.core.state_store import (
+    _MAX_SCORE_VALUE,
     build_continuity_preamble,
     build_manifest,
     compute_run_hash,
@@ -17,7 +21,6 @@ from app.core.state_store import (
     load_state,
     save_state,
     update_mood,
-    _MAX_SCORE_VALUE,
 )
 from app.ledger.scoring import run_integrity_ledger
 from app.render.receipt import render_receipt_from_audit
@@ -89,6 +92,42 @@ def run_pipeline(
         "total_score": ledger.total_score,
         "risk_level": ledger.risk_level,
         "methodology_version": ledger.methodology_version,
+    }
+
+    # --- Epistemic metadata (Honest Machine v1.0 §II / §III) ---
+    layer_confidences = [
+        ledger.ownership.confidence,
+        ledger.revenue.confidence,
+        ledger.editorial.confidence,
+        ledger.article.confidence,
+        ledger.regulatory.confidence,
+        ledger.pattern.confidence,
+    ]
+    overall_confidence = sum(layer_confidences) / len(layer_confidences)
+    data_completeness = derive_data_completeness(overall_confidence)
+    epistemic = build_epistemic_block(overall_confidence, data_completeness)
+    audit["epistemic"] = epistemic
+
+    # --- Language constraints check (§I.1) ---
+    report_text = " ".join(
+        filter(None, [audit.get("story_text"), audit.get("clinical_recommendation")])
+    )
+    lang_violations = enforce_language_constraints(report_text)
+    if lang_violations:
+        audit["language_constraint_violations"] = lang_violations
+
+    # --- Internal audit (§III.C) ---
+    internal_audit_result = run_internal_audit(
+        text=report_text,
+        confidence_score=overall_confidence,
+    )
+    audit["internal_audit"] = {
+        "passed": internal_audit_result.passed,
+        "cluster_balance_ok": internal_audit_result.cluster_balance_ok,
+        "data_completeness_ok": internal_audit_result.data_completeness_ok,
+        "language_bias_ok": internal_audit_result.language_bias_ok,
+        "violations": internal_audit_result.violations,
+        "flagged_for_review": internal_audit_result.flagged_for_review,
     }
 
     # --- Hash-chain and continuity metadata ---

@@ -16,7 +16,16 @@ def main() -> None:
     g = p.add_mutually_exclusive_group(required=True)
     g.add_argument("--file", "-f")
     g.add_argument("--text", "-t")
-    p.add_argument("--mode", "-m", default="scalpel")
+    p.add_argument(
+        "--mode",
+        "-m",
+        default="scalpel",
+        help=(
+            "Pipeline mode. "
+            "'scalpel' (default): run audit + integrity ledger without damage estimate. "
+            "'scalpel-ledger': same as scalpel but also generates the But-If damage estimate."
+        ),
+    )
     p.add_argument("--target", default=None)
     args = p.parse_args()
 

@@ -5,19 +5,20 @@ from .models import LayerScore
 
 def analyze_revenue(outlet: str) -> LayerScore:
     try:
-        from app.core.llm_client import call_llm
         import json
         import re
 
+        from app.core.llm_client import call_llm
+
         system = (
-            "You are a media revenue and advertiser conflict analyst. Respond with valid JSON only. "
-            "Schema: {\"score\": <float 0.0-1.0>, \"confidence\": <float 0.0-1.0>, \"notes\": <string>}. "
+            "You are a media revenue and advertiser conflict analyst. Respond with valid JSON only. "  # noqa: E501
+            'Schema: {"score": <float 0.0-1.0>, "confidence": <float 0.0-1.0>, "notes": <string>}. '
             "Score represents advertiser/sponsor conflict risk (0=low, 1=high)."
         )
         user = (
             f"Analyze the known revenue model and advertiser/sponsor conflicts for "
             f"this media outlet: {outlet!r}. "
-            "Consider dependence on advertising, known sponsor conflicts, and financial incentives to distort."
+            "Consider dependence on advertising, known sponsor conflicts, and financial incentives to distort."  # noqa: E501
         )
         raw = call_llm(system_prompt=system, user_prompt=user).strip()
         raw = re.sub(r"^```[a-z]*\n?", "", raw)

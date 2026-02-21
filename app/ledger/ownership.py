@@ -5,18 +5,19 @@ from .models import LayerScore
 
 def analyze_ownership(outlet: str) -> LayerScore:
     try:
-        from app.core.llm_client import call_llm
         import json
         import re
 
+        from app.core.llm_client import call_llm
+
         system = (
             "You are a media ownership analyst. Respond with valid JSON only. "
-            "Schema: {\"score\": <float 0.0-1.0>, \"confidence\": <float 0.0-1.0>, \"notes\": <string>}. "
+            'Schema: {"score": <float 0.0-1.0>, "confidence": <float 0.0-1.0>, "notes": <string>}. '
             "Score represents concentration of ownership risk (0=low, 1=high)."
         )
         user = (
             f"Analyze the ownership structure and known bias of this media outlet: {outlet!r}. "
-            "Consider corporate ownership, known political alignment, and editorial independence risk."
+            "Consider corporate ownership, known political alignment, and editorial independence risk."  # noqa: E501
         )
         raw = call_llm(system_prompt=system, user_prompt=user).strip()
         raw = re.sub(r"^```[a-z]*\n?", "", raw)

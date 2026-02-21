@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 
 def test_calm_level_low_word_count() -> None:
     from app.core.time_pressure import compute_time_pressure

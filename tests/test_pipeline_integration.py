@@ -1,14 +1,11 @@
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 import pytest
 import yaml
 
-_FIXTURE_STORY = (
-    Path(__file__).parent.parent / "fixtures" / "stories" / "01-designed.txt"
-)
+_FIXTURE_STORY = Path(__file__).parent.parent / "fixtures" / "stories" / "01-designed.txt"
 _CANONICAL_METRICS = [
     "limbic_lure",
     "parrot_box",
@@ -20,9 +17,7 @@ _CANONICAL_METRICS = [
 ]
 
 
-def test_pipeline_end_to_end_with_fixture(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_pipeline_end_to_end_with_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """End-to-end test using the 01-designed fixture. All output files must be created."""
     from app.core import pipeline_service
 
@@ -92,9 +87,7 @@ def test_pipeline_passes_word_count_to_audit(
     assert calls[0]["duration_seconds"] == 45.0
 
 
-def test_pipeline_result_contains_slug(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_pipeline_result_contains_slug(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     from app.core import pipeline_service
 
     monkeypatch.setattr(pipeline_service, "_DIST", tmp_path / "dist")
@@ -124,14 +117,12 @@ def test_pipeline_scalpel_mode_no_but_if_video(
     assert "but_if_video_mp4" not in result
 
 
-def test_pipeline_with_llm_mock(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_pipeline_with_llm_mock(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Pipeline works correctly when LLM is mocked."""
     import json as _json
 
-    from app.core import pipeline_service
     import app.core.llm_client as llm_mod
+    from app.core import pipeline_service
 
     monkeypatch.setattr(pipeline_service, "_DIST", tmp_path / "dist")
 
@@ -147,9 +138,7 @@ def test_pipeline_with_llm_mock(
                 "hook": "LLM hook.",
                 "final_line": "LLM final line.",
                 "cta": "LLM CTA.",
-                "shots": [
-                    {"index": i, "text": f"Shot {i}", "duration_s": 3} for i in range(1, 5)
-                ],
+                "shots": [{"index": i, "text": f"Shot {i}", "duration_s": 3} for i in range(1, 5)],
             },
         }
     )

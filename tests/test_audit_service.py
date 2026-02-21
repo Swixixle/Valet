@@ -61,7 +61,10 @@ def test_llm_audit_uses_mock(monkeypatch: pytest.MonkeyPatch) -> None:
 
     mock_response = json.dumps(
         {
-            "scores": {m: {"score": 3, "why": "test why", "metaphor": "test metaphor"} for m in _CANONICAL_METRICS},
+            "scores": {
+                m: {"score": 3, "why": "test why", "metaphor": "test metaphor"}
+                for m in _CANONICAL_METRICS
+            },
             "chosen_core_distortions": ["limbic_lure", "parrot_box", "opacity"],
             "clinical_recommendation": "Test recommendation. Discharge when ready.",
             "episode": {

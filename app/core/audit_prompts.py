@@ -16,7 +16,7 @@ proportionate factual basis.",
     "parrot_box": "Repetition of talking points or slogans without supporting evidence or \
 original analysis.",
     "opacity": "Deliberate vagueness, hidden sources, missing attribution, or suppressed context.",
-    "incentive_heat": "Financial, political, or institutional incentive to distort the information.",
+    "incentive_heat": "Financial, political, or institutional incentive to distort the information.",  # noqa: E501
     "scale_distortion": "Making small things seem catastrophically large, or large things \
 seem trivially small.",
     "status_theater": "Appeals to authority, credentials, or consensus without substantive \
@@ -31,14 +31,14 @@ def build_audit_user_prompt(
     duration_seconds: float | None,
     time_pressure_note: str,
 ) -> str:
-    governance_section = (
-        f"\n\n---\n{governance_payload}\n---" if governance_payload else ""
-    )
+    governance_section = f"\n\n---\n{governance_payload}\n---" if governance_payload else ""
 
     duration_context = ""
     if duration_seconds is not None:
         minutes = duration_seconds / 60
-        duration_context = f"\nSource duration: {minutes:.1f} minutes ({int(duration_seconds)} seconds)."
+        duration_context = (
+            f"\nSource duration: {minutes:.1f} minutes ({int(duration_seconds)} seconds)."
+        )
 
     metrics_block = "\n".join(
         f"- {name}: {definition}" for name, definition in _METRIC_DEFINITIONS.items()

@@ -5,16 +5,17 @@ from .models import LayerScore
 
 def analyze_pattern(article_input: object) -> LayerScore:
     try:
-        from app.core.llm_client import call_llm
         import json
         import re
+
+        from app.core.llm_client import call_llm
 
         text = getattr(article_input, "story_text", "") or getattr(article_input, "text", "") or ""
         outlet = getattr(article_input, "outlet", "") or ""
         system = (
             "You are a longitudinal media distortion pattern analyst. "
             "Respond with valid JSON only. "
-            "Schema: {\"score\": <float 0.0-1.0>, \"confidence\": <float 0.0-1.0>, \"notes\": <string>}. "
+            'Schema: {"score": <float 0.0-1.0>, "confidence": <float 0.0-1.0>, "notes": <string>}. '
             "Score represents repeated distortion pattern risk (0=low, 1=high)."
         )
         context = f"Outlet: {outlet}\n\n{text}" if outlet else text

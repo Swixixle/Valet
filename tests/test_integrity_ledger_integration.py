@@ -1,4 +1,5 @@
 """Integration tests: ledger wired into the pipeline, mode-gated damage estimate."""
+
 from __future__ import annotations
 
 import json

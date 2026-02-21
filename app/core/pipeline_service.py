@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import dataclasses
+import hashlib
 import json
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,16 @@ from typing import Any
 import yaml
 
 from app.core.audit_service import run_audit
+from app.core.state_store import (
+    build_continuity_preamble,
+    build_manifest,
+    compute_run_hash,
+    compute_story_fingerprint,
+    load_state,
+    save_state,
+    update_mood,
+    _MAX_SCORE_VALUE,
+)
 from app.ledger.scoring import run_integrity_ledger
 from app.render.receipt import render_receipt_from_audit
 from app.render.video import render_video_from_audit
@@ -30,6 +41,12 @@ def run_pipeline(
     duration_seconds: float | None = None,
 ) -> dict[str, Any]:
     character = target or "valet"
+
+    # Load persistent state and increment episode counter
+    state = load_state(_DIST)
+    state["episode"] = state["episode"] + 1
+    episode_num: int = state["episode"]
+    story_fingerprint = compute_story_fingerprint(story_text)
 
     governance_payload: str | None = None
     voice_meta: dict[str, Any] = {
@@ -74,6 +91,42 @@ def run_pipeline(
         "methodology_version": ledger.methodology_version,
     }
 
+    # --- Hash-chain and continuity metadata ---
+    # Compute audit fingerprint before adding chain block
+    audit_fingerprint = hashlib.sha256(
+        json.dumps(audit, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()
+
+    prev_hash: str | None = state.get("prev_hash")
+    chain_id: str = state.get("chain_id", "valet")  # type: ignore[assignment]
+
+    manifest = build_manifest(
+        chain_id=chain_id,
+        episode=episode_num,
+        slug=slug,
+        mode=mode,
+        target=target,
+        story_fingerprint=story_fingerprint,
+        audit_fingerprint=audit_fingerprint,
+        prev_hash=prev_hash,
+    )
+    current_hash = compute_run_hash(manifest)
+    preamble = build_continuity_preamble(episode_num, prev_hash, current_hash)
+
+    chain_block: dict[str, Any] = {
+        "chain_id": chain_id,
+        "episode": episode_num,
+        "prev_hash": prev_hash,
+        "current_hash": current_hash,
+    }
+    operator_control_block: dict[str, Any] = {"preamble": preamble}
+
+    audit["chain"] = chain_block
+    audit["operator_control"] = operator_control_block
+    audit["receipt"]["chain"] = chain_block
+    audit["receipt"]["operator_control"] = operator_control_block
+    # --- end hash-chain ---
+
     if governance_payload is not None:
         (out_dir / "voice_governance.txt").write_text(governance_payload, encoding="utf-8")
 
@@ -89,6 +142,25 @@ def run_pipeline(
     receipt_json, receipt_png = render_receipt_from_audit(audit, out_dir)
     video_mp4 = render_video_from_audit(audit, receipt_png, out_dir)
 
+    # Write chain.json
+    chain_json = out_dir / "chain.json"
+    chain_json.write_text(
+        json.dumps({"manifest": manifest, **chain_block}, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    # Update and persist state
+    distortion_score = sum(v["score"] for v in audit["scores"].values()) / (
+        _MAX_SCORE_VALUE * len(audit["scores"])
+    )
+    state = update_mood(state, distortion_score, ledger.total_score)
+    state["prev_hash"] = current_hash
+    state["last_slug"] = slug
+    state["last_run_utc"] = audit["timestamp"]
+    if target:
+        state["last_target"] = target
+    save_state(_DIST, state)
+
     result: dict[str, Any] = {
         "slug": slug,
         "audit_yaml": str(audit_yaml),
@@ -96,6 +168,7 @@ def run_pipeline(
         "receipt_png": str(receipt_png),
         "video_mp4": str(video_mp4),
         "integrity_ledger_json": str(ledger_json),
+        "chain_json": str(chain_json),
     }
 
     # Render But-If video for scalpel-ledger mode

@@ -3,7 +3,7 @@ from __future__ import annotations
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, field_validator
 
-from app.core.pipeline_service import run_pipeline
+from app.core.pipeline_service import DoctrineViolationError, run_pipeline
 
 router = APIRouter()
 
@@ -47,5 +47,17 @@ def pipeline(req: PipelineRequest):
             word_count=word_count,
             duration_seconds=duration_seconds,
         )
+    except DoctrineViolationError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail={
+                "error": "doctrine_violation",
+                "surface": exc.surface,
+                "violations": [
+                    {"pattern": v.phrase_pattern, "matched": v.matched_text}
+                    for v in exc.violations
+                ],
+            },
+        ) from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc

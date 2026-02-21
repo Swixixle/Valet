@@ -101,6 +101,56 @@ def render_receipt_from_audit(audit: dict[str, Any], out_dir: str | Path) -> tup
         draw.text((40, y), ln, font=discharge_font, fill=(255, 200, 200))
         y += 44
 
+    # ── Honesty Strip ─────────────────────────────────────────────────────────
+    # Compact block that must survive screenshot review; rendered before stamps.
+    honesty_y = H - 310
+    draw.rectangle([(30, honesty_y - 8), (W - 30, H - 230)], fill=(20, 20, 35))
+    draw.text((40, honesty_y), "HONESTY STRIP", font=section_font, fill=(255, 220, 60))
+    honesty_y += 32
+
+    epistemic = audit.get("epistemic", {})
+    confidence = epistemic.get("confidence_score", "n/a")
+    confidence_str = f"{confidence:.0%}" if isinstance(confidence, float) else str(confidence)
+    tier = epistemic.get("transparency_tier", "n/a")
+    completeness = epistemic.get("data_completeness", "n/a")
+
+    internal_audit = audit.get("internal_audit", {})
+    doctrine_status = internal_audit.get("doctrine_status", "UNKNOWN")
+    audit_status = (
+        "PASS"
+        if all(
+            internal_audit.get(k, "UNKNOWN") in ("PASS", "UNKNOWN")
+            for k in ("cluster_balance_status", "data_completeness_status")
+        )
+        and doctrine_status == "PASS"
+        else "FLAGGED"
+    )
+
+    doctrine_color = (80, 220, 80) if doctrine_status == "PASS" else (220, 60, 60)
+    audit_color = (80, 220, 80) if audit_status == "PASS" else (255, 200, 60)
+
+    draw.text(
+        (50, honesty_y),
+        f"Confidence: {confidence_str}  |  Tier: {tier}  |  Completeness: {completeness}",
+        font=mono,
+        fill=(200, 200, 220),
+    )
+    honesty_y += 26
+    draw.text(
+        (50, honesty_y),
+        f"Doctrine: {doctrine_status}",
+        font=mono,
+        fill=doctrine_color,
+    )
+    honesty_y += 26
+    draw.text(
+        (50, honesty_y),
+        f"Internal Audit: {audit_status}",
+        font=mono,
+        fill=audit_color,
+    )
+    # ── end Honesty Strip ──────────────────────────────────────────────────────
+
     stamp = _font(64, bold=True)
     draw.text((40, H - 220), receipt["lobby_stamp"], font=stamp, fill=(200, 60, 60))
     draw.text((40, H - 120), receipt["cta"], font=body, fill=(180, 140, 255))

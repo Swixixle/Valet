@@ -18,11 +18,7 @@ class InternalAuditResult:
     @property
     def passed(self) -> bool:
         """Return True only when all checks pass."""
-        return (
-            self.cluster_balance_ok
-            and self.data_completeness_ok
-            and self.language_bias_ok
-        )
+        return self.cluster_balance_ok and self.data_completeness_ok and self.language_bias_ok
 
     @property
     def flagged_for_review(self) -> bool:

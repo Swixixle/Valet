@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 import yaml
 
-
 # ---------------------------------------------------------------------------
 # state_store unit tests
 # ---------------------------------------------------------------------------
@@ -156,9 +155,7 @@ def test_first_run_creates_state_and_chain_in_audit(
     assert Path(result["chain_json"]).exists()
 
 
-def test_second_run_links_to_first(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_second_run_links_to_first(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """AC 2: Second run's prev_hash equals first run's current_hash; episode increments."""
     from app.core import pipeline_service
 
@@ -181,9 +178,7 @@ def test_second_run_links_to_first(
     assert second_chain["episode"] == 2
 
 
-def test_corrupt_state_reinitializes(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_corrupt_state_reinitializes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """AC 3: Corrupt state.json → pipeline still runs; state reinitializes."""
     from app.core import pipeline_service
 
@@ -227,9 +222,7 @@ def test_episode_increments_produce_different_hashes(
     assert h1 != h2
 
 
-def test_receipt_json_contains_chain(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_receipt_json_contains_chain(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """receipt.json must include chain and operator_control blocks."""
     from app.core import pipeline_service
 

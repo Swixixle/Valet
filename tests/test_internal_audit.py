@@ -99,7 +99,9 @@ def test_pipeline_audit_yaml_contains_epistemic_and_internal_audit(
     assert "data_completeness" in ep
     assert "transparency_level" in ep
     assert ep["transparency_level"] in (
-        "FULLY_TRACEABLE", "PARTIALLY_TRACEABLE", "STRUCTURALLY_OPAQUE"
+        "FULLY_TRACEABLE",
+        "PARTIALLY_TRACEABLE",
+        "STRUCTURALLY_OPAQUE",
     )
     assert ep["causation_claim"] is False
     assert isinstance(ep["known_blind_zones"], list)

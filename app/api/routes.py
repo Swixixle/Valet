@@ -54,8 +54,7 @@ def pipeline(req: PipelineRequest):
                 "error": "doctrine_violation",
                 "surface": exc.surface,
                 "violations": [
-                    {"pattern": v.phrase_pattern, "matched": v.matched_text}
-                    for v in exc.violations
+                    {"pattern": v.phrase_pattern, "matched": v.matched_text} for v in exc.violations
                 ],
             },
         ) from exc

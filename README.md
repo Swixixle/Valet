@@ -65,6 +65,16 @@ The API will be available at `http://localhost:8000`.
 python tools/run_pipeline.py --mode scalpel --file fixtures/stories/01-designed.txt
 ```
 
+### Generate a signed audit from a prompt
+
+```bash
+RECEIPT_SIGNING_KEY="your-signing-key" \
+python -m tools.generate_signed_audit \
+  --prompt "Explain why a signed receipt is better than a standard log."
+```
+
+This command writes the same artifacts to `dist/<slug>/` and prints `signature_valid: true` when the generated `receipt.json` verifies.
+
 **Options:**
 
 | Flag | Short | Description |
@@ -115,6 +125,7 @@ Running the pipeline writes all files to `dist/<slug>/` and produces:
 | `LLM_PROVIDER` | Yes | LLM backend to use: `openai` or `anthropic` |
 | `OPENAI_API_KEY` | If `LLM_PROVIDER=openai` | OpenAI API key |
 | `ANTHROPIC_API_KEY` | If `LLM_PROVIDER=anthropic` | Anthropic API key |
+| `RECEIPT_SIGNING_KEY` | Yes | HMAC key used to sign `receipt.json` payloads |
 | `WHISPER_MODEL` | No | Whisper model size for video transcription (default: `base`) |
 
 ### Output Contract
@@ -131,6 +142,17 @@ dist/<slug>/
   voice_governance.txt    ← voice payload (if voice-library is wired)
   but_if_video.mp4        ← alternate video (scalpel-ledger mode only)
 ```
+
+`receipt.json` includes a `signature` block (`algorithm`, `payload_hash`, `value`) that verifies receipt integrity.
+
+### Schema Compatibility Notes
+
+To support mixed consumers during migration, output payloads include both newer and legacy field names:
+
+- `audit.epistemic.transparency_tier` (current) and `audit.epistemic.transparency_level` (legacy)
+- `audit.internal_audit.*_status` fields (current) and boolean summary fields (`passed`, `cluster_balance_ok`, `data_completeness_ok`, `language_bias_ok`, `flagged_for_review`, `violations`) for legacy readers
+
+When building new integrations, prefer the current status-based fields and treat legacy fields as backward-compatibility aliases.
 
 ---
 

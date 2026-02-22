@@ -6,6 +6,8 @@ from pathlib import Path
 import pytest
 import yaml
 
+from app.escrow.signing import verify_receipt_signature
+
 # ---------------------------------------------------------------------------
 # state_store unit tests
 # ---------------------------------------------------------------------------
@@ -238,3 +240,24 @@ def test_receipt_json_contains_chain(tmp_path: Path, monkeypatch: pytest.MonkeyP
     assert "operator_control" in receipt
     assert "preamble" in receipt["operator_control"]
     assert "Operator-selected input" in receipt["operator_control"]["preamble"]
+    assert "signature" in receipt
+    assert verify_receipt_signature(receipt)
+
+
+def test_receipt_signature_detects_tampering(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from app.core import pipeline_service
+
+    monkeypatch.setattr(pipeline_service, "_DIST", tmp_path / "dist")
+
+    result = pipeline_service.run_pipeline(
+        mode="scalpel",
+        story_text="You weren't distracted. You were designed.",
+    )
+
+    receipt_path = Path(result["receipt_json"])
+    receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+    receipt["cta"] = "Tampered CTA"
+
+    assert not verify_receipt_signature(receipt)

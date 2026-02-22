@@ -41,7 +41,26 @@ def build_internal_audit_block(
     if doctrine_status == "FAIL":
         actions.append("Doctrine violation detected: remove banned language before publishing.")
 
+    violations: list[str] = []
+    if cluster_status == "FLAGGED":
+        violations.append("coverage_cluster_imbalance")
+    if data_completeness_status == "FLAGGED":
+        violations.append("data_completeness_below_threshold")
+    if doctrine_status == "FAIL":
+        violations.append("language_bias_detected")
+
+    cluster_balance_ok = cluster_status != "FLAGGED"
+    data_completeness_ok = data_completeness_status != "FLAGGED"
+    language_bias_ok = doctrine_status == "PASS"
+    passed = cluster_balance_ok and data_completeness_ok and language_bias_ok
+
     return {
+        "passed": passed,
+        "cluster_balance_ok": cluster_balance_ok,
+        "data_completeness_ok": data_completeness_ok,
+        "language_bias_ok": language_bias_ok,
+        "violations": violations,
+        "flagged_for_review": not passed,
         "cluster_balance_status": cluster_status,
         "data_completeness_status": data_completeness_status,
         "doctrine_status": doctrine_status,

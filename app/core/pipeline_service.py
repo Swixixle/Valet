@@ -25,6 +25,7 @@ from app.core.state_store import (
 from app.doctrine.contract import build_missing_data_disclosure, validate_report_contract
 from app.doctrine.guard import DoctrineViolation, enforce_language_constraints
 from app.epistemic.enforcer import build_epistemic_block
+from app.escrow.signing import sign_receipt
 from app.internal_audit import build_internal_audit_block
 from app.ledger.scoring import run_integrity_ledger
 from app.render.receipt import render_receipt_from_audit
@@ -262,6 +263,7 @@ def run_pipeline(
     audit["operator_control"] = operator_control_block
     audit["receipt"]["chain"] = chain_block
     audit["receipt"]["operator_control"] = operator_control_block
+    audit["receipt"] = sign_receipt(audit["receipt"])
     # --- end hash-chain ---
 
     if governance_payload is not None:

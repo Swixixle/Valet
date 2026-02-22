@@ -42,6 +42,20 @@ class TransparencyTier(StrEnum):
     LOW = "low"
 
 
+_LEGACY_TRANSPARENCY_LEVEL_MAP: dict[TransparencyTier, str] = {
+    TransparencyTier.HIGH: "FULLY_TRACEABLE",
+    TransparencyTier.MODERATE: "PARTIALLY_TRACEABLE",
+    TransparencyTier.LOW: "STRUCTURALLY_OPAQUE",
+}
+
+_KNOWN_BLIND_ZONES: list[str] = [
+    "501(c)(4) organizations",
+    "Family offices",
+    "Anonymous donors",
+    "Offshore structures",
+]
+
+
 # ── Public helpers ─────────────────────────────────────────────────────────────
 
 
@@ -126,6 +140,9 @@ def build_epistemic_block(
         "confidence_score": round(score, 4),
         "data_completeness": data_completeness.value,
         "transparency_tier": tier.value,
+        "transparency_level": _LEGACY_TRANSPARENCY_LEVEL_MAP[tier],
+        "causation_claim": False,
+        "known_blind_zones": list(_KNOWN_BLIND_ZONES),
         "uncertainty_disclosure": disclosure,
     }
 

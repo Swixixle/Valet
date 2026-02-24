@@ -35,6 +35,11 @@ Valet/
   pyproject.toml     ← dependencies and project metadata
 ```
 
+## Copilot Policy
+
+Repository-level Copilot behavior and safety requirements are defined in [.github/copilot-instructions.md](.github/copilot-instructions.md).
+Security-critical areas include `app/escrow/` (signing, hashing, chain-linking); treat related changes as forensic-integrity sensitive.
+
 ---
 
 ## Installation

@@ -1,7 +1,25 @@
 # Valet Studio
 
+**AI audit and observability tool — canonical command runner with cryptographic receipt signing and epistemic tracking.**
+
 > Deterministic text → structured audit + TikTok-ready video.  
 > Input a story. Get back `audit.yaml`, `receipt.png`, `receipt.json`, and a 9:16 `video.mp4`.
+
+---
+
+## What is Valet?
+
+Valet is an AI audit and observability platform that turns volatile AI interactions into immutable, cryptographically-signed forensic artifacts. Every AI conversation turn produces a tamper-evident receipt — hash-chained to prior turns and categorized using the ELI (Evidence-Led Inference) schema, which classifies every AI claim as `FACT`, `INFERENCE`, or `OPINION`.
+
+Built for compliance, legal review, and epistemic accountability, Valet runs as a CLI tool or a FastAPI service and integrates with any LLM provider.
+
+**Core capabilities:**
+
+- **Signed Receipts** — Every conversation turn is signed with Ed25519 and stored as a verifiable JSON artifact.
+- **Hash Chaining** — Receipts are linked in tamper-evident sequence; any modification breaks the chain.
+- **ELI Schema** — AI claims are tagged before signing: `FACT` (with source hash), `INFERENCE`, or `OPINION`.
+- **Deterministic Pipeline** — Input a story or prompt, get back a structured `audit.yaml`, signed `receipt.json`, and a visual `receipt.png`.
+- **Fail-Closed Audit Mode** — Claims are verified against authoritative data sources; missing or ambiguous records are flagged, never guessed.
 
 ---
 
